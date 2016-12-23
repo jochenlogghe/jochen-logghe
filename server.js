@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var flash = require('connect-flash');
 var passport = require('passport');
+
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 
@@ -14,6 +15,13 @@ var MongoStore = require('connect-mongo')(session);
 var index   = require('./server/routes/index');
 var users   = require('./server/routes/users');
 var clans   = require('./server/routes/clans')
+
+// database configuration
+var config = require('./server/config/config.js');
+mongoose.connect(config.url);
+mongoose.connection.on('error', function(){
+  console.error('MongoDB Connection Error.');
+});
 
 var app = express();
 
@@ -32,20 +40,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
-app.use('/api/clans', clans);
-
-app.use(flash());
-app.use(passport.initialize());
-app.use(passport.session());
-
-var config = require('./server/config/config.js');
-mongoose.connect(config.url);
-mongoose.connection.on('error', function(){
-  console.error('MongoDB Connection Error.');
-});
-
 app.use(session({
     secret: 'clansdatabase',
     saveUninitialized: true,
@@ -55,6 +49,14 @@ app.use(session({
         collection:'sessions'
     })
 }));
+
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('/', index);
+app.use('/users', users);
+app.use('/api/clans', clans);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

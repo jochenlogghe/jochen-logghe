@@ -32,6 +32,17 @@ router.post('/login', passport.authenticate('local-login', {
     failureFlash: true
 }));
 
+/* GET signup */
+router.get('/signup', function(request, response){
+    response.render('signup.ejs', { message: request.flash('signupMessage') });
+});
+
+/* POST signup */
+router.post('/signup', passport.authenticate('local-login',{
+    successRedirect: '/profile',
+    failureRedirect: '/signup',
+    failureFlash: true
+}));
 
 
 function isLoggedIn(request, response, next){
